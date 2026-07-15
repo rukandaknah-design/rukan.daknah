@@ -1,0 +1,1 @@
+export default function Offers() { return <h1>الخصومات والعروض</h1>; }

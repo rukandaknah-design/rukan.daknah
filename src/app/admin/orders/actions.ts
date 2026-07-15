@@ -1,0 +1,17 @@
+'use server';
+import { prisma } from '../../../lib/prisma';
+import { revalidatePath } from 'next/cache';
+
+export async function getOrders() {
+  return await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+export async function updateOrderStatus(id: string, status: string) {
+  await prisma.order.update({
+    where: { id },
+    data: { status }
+  });
+  revalidatePath('/admin/orders');
+}
