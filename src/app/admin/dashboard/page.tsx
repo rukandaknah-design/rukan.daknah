@@ -1,130 +1,129 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { DollarSign, ShoppingBag, Users, Package, Loader2, TrendingUp, ArrowUpRight } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { getDashboardData } from './actions';
-import Link from 'next/link';
+import { TrendingUp, Users, Package, ShoppingBag, DollarSign, Activity, ArrowUpRight, Download } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-export default function Dashboard() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+const salesData = [
+  { name: 'السبت', sales: 4000, orders: 24 },
+  { name: 'الأحد', sales: 3000, orders: 18 },
+  { name: 'الإثنين', sales: 5000, orders: 35 },
+  { name: 'الثلاثاء', sales: 2780, orders: 15 },
+  { name: 'الأربعاء', sales: 8900, orders: 60 },
+  { name: 'الخميس', sales: 2390, orders: 12 },
+  { name: 'الجمعة', sales: 3490, orders: 20 },
+];
 
-  useEffect(() => {
-    const loadData = async () => {
-      const result = await getDashboardData();
-      setData(result);
-      setLoading(false);
-    };
-    loadData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="h-[80vh] flex flex-col justify-center items-center text-indigo-600 gap-4">
-        <Loader2 className="w-12 h-12 animate-spin" />
-        <p className="font-bold text-xl">جاري تحليل البيانات وإعداد الرسوم البيانية...</p>
-      </div>
-    );
-  }
-
+export default function AdminDashboard() {
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="p-6 lg:p-10 space-y-8">
+      {/* الترويسة */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-gray-800">نظرة عامة على الأداء</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">ملخص المبيعات والنشاطات لمتجرك وفروعك</p>
+          <h1 className="text-3xl font-black text-gray-800 mb-1">مرحباً بك في لوحة القيادة 👋</h1>
+          <p className="text-gray-500 font-medium">إليك ملخص أداء متجرك لهذا الأسبوع.</p>
         </div>
-        <div className="bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm text-sm font-bold text-gray-600 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-green-500"/> تحديث مباشر
-        </div>
+        <button className="bg-white border border-gray-200 text-gray-700 hover:border-sky-400 hover:text-sky-600 px-5 py-2.5 rounded-xl font-bold shadow-sm transition-all flex items-center gap-2">
+          <Download className="w-4 h-4" /> تحميل التقرير
+        </button>
       </div>
 
       {/* البطاقات الإحصائية */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="إجمالي الإيرادات" value={`${data.stats.totalRevenue} ر.س`} icon={<DollarSign className="w-7 h-7"/>} color="bg-green-50 text-green-600" />
-        <StatCard title="إجمالي الطلبات" value={data.stats.totalOrders} icon={<ShoppingBag className="w-7 h-7"/>} color="bg-indigo-50 text-indigo-600" />
-        <StatCard title="إجمالي العملاء" value={data.stats.totalCustomers} icon={<Users className="w-7 h-7"/>} color="bg-purple-50 text-purple-600" />
-        <StatCard title="المنتجات بالمخزون" value={data.stats.totalProducts} icon={<Package className="w-7 h-7"/>} color="bg-orange-50 text-orange-600" />
+        <Card title="إجمالي المبيعات" value="29,560 ر.س" icon={<DollarSign className="w-7 h-7"/>} color="text-green-500" bg="bg-green-50" trend="+12.5%" />
+        <Card title="الطلبات الجديدة" value="184" icon={<ShoppingBag className="w-7 h-7"/>} color="text-sky-500" bg="bg-sky-50" trend="+5.2%" />
+        <Card title="إجمالي العملاء" value="2,450" icon={<Users className="w-7 h-7"/>} color="text-purple-500" bg="bg-purple-50" trend="+18.1%" />
+        <Card title="المنتجات المتوفرة" value="842" icon={<Package className="w-7 h-7"/>} color="text-orange-500" bg="bg-orange-50" trend="-2.4%" isDown />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* الرسم البياني للمبيعات */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-lg font-black text-gray-800">مبيعات آخر 7 أيام</h2>
-            <select className="bg-gray-50 border border-gray-100 text-sm font-bold rounded-lg px-3 py-1.5 outline-none">
-              <option>آخر 7 أيام</option>
-            </select>
-          </div>
-          <div className="h-80 w-full" dir="ltr">
+      {/* الرسوم البيانية */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-6 lg:p-8 rounded-3xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <TrendingUp className="text-sky-500"/> المبيعات خلال الأسبوع
+          </h2>
+          <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 'bold'}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12, fontWeight: 'bold'}} />
-                <Tooltip 
-                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontWeight: 'bold', textAlign: 'right'}}
-                  itemStyle={{color: '#4f46e5'}}
-                  formatter={(value) => [`${value} ر.س`, 'المبيعات']}
-                />
-                <Area type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={4} fillOpacity={1} fill="url(#colorTotal)" activeDot={{r: 8, strokeWidth: 0}} />
-              </AreaChart>
+              <LineChart data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dx={-10} />
+                <Tooltip cursor={{stroke: '#e0e0e0', strokeWidth: 2}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Line type="monotone" dataKey="sales" name="المبيعات (ر.س)" stroke="#0ea5e9" strokeWidth={4} dot={{r: 4, strokeWidth: 2, fill: '#fff'}} activeDot={{r: 8, strokeWidth: 0}} />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* أحدث الطلبات */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-black text-gray-800">أحدث الطلبات</h2>
-            <Link href="/admin/orders" className="text-indigo-600 text-sm font-bold hover:underline flex items-center">الكل <ArrowUpRight className="w-4 h-4"/></Link>
+        <div className="bg-white p-6 lg:p-8 rounded-3xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <Activity className="text-sky-500"/> حجم الطلبات اليومية
+          </h2>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dx={-10} />
+                <Tooltip cursor={{fill: '#f0f9ff'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="orders" name="عدد الطلبات" fill="#0ea5e9" radius={[6, 6, 0, 0]} barSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          
-          <div className="space-y-4 flex-1">
-            {data.recentOrders.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-gray-400 font-bold">لا توجد طلبات بعد</div>
-            ) : (
-              data.recentOrders.map((order: any) => (
-                <div key={order.id} className="flex justify-between items-center p-4 hover:bg-gray-50 rounded-2xl transition-colors border border-gray-50 group">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${order.source === 'POS' ? 'bg-indigo-100 text-indigo-600' : 'bg-sky-100 text-sky-600'}`}>
-                      {order.source === 'POS' ? 'POS' : 'WEB'}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-800">{order.customerName}</p>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">{new Date(order.createdAt).toLocaleDateString('ar-SA')}</p>
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-black text-gray-800">{order.totalAmount} <span className="text-xs text-gray-500">ر.س</span></p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+        </div>
+      </div>
+
+      {/* جدول أحدث الطلبات */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 lg:p-8 border-b border-gray-50 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-800">أحدث الطلبات</h2>
+          <button className="text-sky-500 font-bold hover:underline text-sm">عرض الكل</button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-right">
+            <thead className="bg-gray-50/50 text-gray-500 text-sm">
+              <tr>
+                <th className="p-5 font-bold">رقم الطلب</th>
+                <th className="p-5 font-bold">العميل</th>
+                <th className="p-5 font-bold">التاريخ</th>
+                <th className="p-5 font-bold">المبلغ</th>
+                <th className="p-5 font-bold">الحالة</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i} className="hover:bg-sky-50/30 transition-colors group">
+                  <td className="p-5 font-black text-gray-800">#ORD-00{i}</td>
+                  <td className="p-5 text-gray-600 font-medium">عميل تجريبي {i}</td>
+                  <td className="p-5 text-gray-500 text-sm">16 يوليو 2026</td>
+                  <td className="p-5 font-black text-sky-600">{150 * i} ر.س</td>
+                  <td className="p-5">
+                    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${i % 2 === 0 ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}`}>
+                      {i % 2 === 0 ? 'قيد التجهيز' : 'مكتمل'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({title, value, icon, color}: any) {
+function Card({ title, value, icon, color, bg, trend, isDown }: any) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+    <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
       <div className="flex justify-between items-start mb-4">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${color}`}>
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${bg} ${color} group-hover:scale-110 transition-transform`}>
           {icon}
         </div>
+        <span className={`flex items-center gap-1 text-sm font-bold px-2 py-1 rounded-lg ${isDown ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}>
+          {trend} <ArrowUpRight className={`w-3 h-3 ${isDown ? 'rotate-90' : ''}`} />
+        </span>
       </div>
       <div>
         <p className="text-gray-500 text-sm font-bold mb-1">{title}</p>
-        <h3 className="text-3xl font-black text-gray-800">{value}</h3>
+        <h3 className="text-3xl font-black text-gray-800 tracking-tight">{value}</h3>
       </div>
     </div>
   );
