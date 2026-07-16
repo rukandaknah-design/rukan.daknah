@@ -1,7 +1,8 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  cookies().delete('auth_session');
-  return NextResponse.redirect(new URL('/login', request.url));
+  // توجيه المستخدم لصفحة الدخول ومسح ذاكرة الصلاحيات
+  const response = NextResponse.redirect(new URL('/login', request.url));
+  response.cookies.delete('userRole');
+  return response;
 }
