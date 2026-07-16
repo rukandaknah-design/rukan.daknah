@@ -65,3 +65,12 @@ model Order {
   status        String   @default("PENDING")
   createdAt     DateTime @default(now())
 }
+model Offer {
+  id          String   @id @default(cuid())
+  title       String
+  discount    Float
+  type        String   @default("PERCENTAGE")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
